@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="api">
+  <Items>
+    <LogicalFolder Name="Соединения" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="WS-SPB-TPAD08\ZSQL:sa">
+          <Created>2017-05-24T14:46:23.2459297+03:00</Created>
+          <Type>SQL</Type>
+          <Server>WS-SPB-TPAD08\ZSQL</Server>
+          <UserName>sa</UserName>
+          <Authentication>SQL</Authentication>
+          <InitialDB />
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Среда Microsoft SQL Server Management Studio - запрос</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Запросы" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="bak.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>bak.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_CreateInputFromRequest.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_CreateInputFromRequest.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_EDIKontur.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_EDIKontur.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_ExportMessages.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_ExportMessages.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_GetBuyerXML.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>external_GetBuyerXML.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_GetDeliveryInfoXML.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>external_GetDeliveryInfoXML.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_GetEvents.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_GetEvents.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_GetInvoiceeXML.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>external_GetInvoiceeXML.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_GetSellerXML.sql">
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
+          <AssociatedConnUserName />
+          <FullPath>external_GetSellerXML.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_KonturConnect.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_KonturConnect.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_PrepareInputs.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_PrepareInputs.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_PrepareRequests.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_PrepareRequests.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_PrepareStatusReport.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_PrepareStatusReport.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_ProcessEvents.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_ProcessEvents.sql</FullPath>
+        </FileNode>
+        <FileNode Name="external_UpdateDocStatus.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:WS-SPB-TPAD08\ZSQL:False:sa</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>WS-SPB-TPAD08\ZSQL</AssociatedConnSrvName>
+          <AssociatedConnUserName>sa</AssociatedConnUserName>
+          <FullPath>external_UpdateDocStatus.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Разное" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>
