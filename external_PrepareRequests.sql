@@ -79,6 +79,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 			ELSE ''
 		END 'gtin'
 		-- CONVERT(NVARCHAR(MAX), N.note_Value) N'gtin' -- GTIN товара
+		-- ,P.pitm_ID N'internalBuyerCode' --внутренний код присвоенный покупателем
 		,P.pitm_ID N'internalBuyerCode' --внутренний код присвоенный покупателем
 		,I.strqti_Article N'internalSupplierCode' --артикул товара (код товара присвоенный продавцом)
 		,I.strqti_Order N'lineNumber' --порядковый номер товара
