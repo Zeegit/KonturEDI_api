@@ -37,6 +37,8 @@ DECLARE
 	,@invoicee XML
 	,@deliveryInfo XML
 	,@Result XML
+	
+	,@status NVARCHAR(MAX)
 
 -- Системные настройки заметок
 SELECT @nttp_ID_Measure = nttp_ID_Measure, @Measure_Default = Measure_Default, @Currency_Default = Currency_Default, @idtp_ID_GTIN = idtp_ID_GTIN
@@ -71,6 +73,12 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 	-- Получение BoxId
 	EXEC external_GetBoxId @part_ID_Self, @boxId OUTPUT
 
+	-- Вычисляем статус заявки
+	IF EXISTS(SELECT * FROM KonturEDI.dbo.edi_Messages WHERE msg_doc_ID_original = @strqt_ID)
+		SET @status = 'Replace'
+	ELSE
+		SET @status = 'Original'
+
 	-- Элементы заказа
 	SET @LineItem = 
 	(SELECT
@@ -80,14 +88,14 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 		END 'gtin'
 		-- CONVERT(NVARCHAR(MAX), N.note_Value) N'gtin' -- GTIN товара
 		-- ,P.pitm_ID N'internalBuyerCode' --внутренний код присвоенный покупателем
-		,P.pitm_ID N'internalBuyerCode' --внутренний код присвоенный покупателем
+		,NULL N'internalBuyerCode' --внутренний код присвоенный покупателем
 		,I.strqti_Article N'internalSupplierCode' --артикул товара (код товара присвоенный продавцом)
 		,I.strqti_Order N'lineNumber' --порядковый номер товара
 		,NULL N'typeOfUnit' --признак возвратной тары, если это не тара, то строки нет
 		,dbo.f_MultiLanguageStringToStringByLanguage1(ISNULL(I.strqti_ItemName, P.pitm_Name), 25) N'description' --название товара
 		,dbo.f_MultiLanguageStringToStringByLanguage1(I.strqti_Comment, 25) N'comment' --комментарий к товарной позиции
 		,ISNULL(CONVERT(NVARCHAR(MAX), NM.note_Value), @Measure_Default) N'requestedQuantity/@unitOfMeasure' -- MeasurementUnitCode
-		,I.strqti_Volume/MI.meit_Rate N'requestedQuantity/text()' --заказанное количество
+		,CONVERT(NUMERIC(18,6), I.strqti_Volume/MI.meit_Rate) N'requestedQuantity/text()' --заказанное количество
 		,NULL N'onePlaceQuantity/@unitOfMeasure' -- MeasurementUnitCode
 		,NULL N'onePlaceQuantity/text()' -- количество в одном месте (чему д.б. кратно общее кол-во)
 		,'Direct' N'flowType' --Тип поставки, может принимать значения: Stock - сток до РЦ, Transit - транзит в магазин, Direct - прямая поставка, Fresh - свежие продукты
@@ -164,7 +172,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 				R.strqt_Name N'@number'
 				,CONVERT(NVARCHAR(MAX), CONVERT(DATE, R.strqt_Date), 127) N'@date'
 				,R.strqt_ID N'@id'
-				,N'Original' N'@status'
+				,@status N'@status'
 				,NULL N'@revisionNumber'
 
 				,NULL N'promotionDealNumber'
