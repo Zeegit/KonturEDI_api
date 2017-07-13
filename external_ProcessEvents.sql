@@ -250,6 +250,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 					DROP TABLE #StoreRequestItems
 
 				CREATE TABLE #StoreRequestItems(
+					strqti_ID_orig uniqueidentifier NOT NULL,
 					strqti_ID uniqueidentifier NOT NULL,
 					strqti_strqt_ID uniqueidentifier NOT NULL,
 					strqti_pitm_ID uniqueidentifier NOT NULL,
@@ -307,6 +308,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 						SELECT 
 							 @strqti_ID = NEWID()
 							-- ,@strqti_strqt_ID
+							,@strqt_ID = strqti_strqt_ID
 							,@strqti_pitm_ID = strqti_pitm_ID
 							,@strqti_meit_ID = strqti_meit_ID
 							,@strqti_strqtist_ID = strqti_strqtist_ID
@@ -355,8 +357,8 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 						END
 						-- Вставляем обработанные значения
 				
-						INSERT INTO #StoreRequestItems (strqti_ID,strqti_strqt_ID,strqti_pitm_ID,strqti_meit_ID,strqti_strqtist_ID,strqti_IdentifierCode,strqti_ItemName,strqti_Article,strqti_idtp_ID,strqti_Remains,strqti_ConsumptionPerDay,strqti_Volume,strqti_Price,strqti_Sum,strqti_VAT,strqti_SumVAT,strqti_EditIndex,strqti_Comment,strqti_Order)
-						VALUES (@strqti_ID, @strqt_ID, @strqti_pitm_ID, @strqti_meit_ID, @strqti_strqtist_ID, @strqti_IdentifierCode, @strqti_ItemName, @strqti_Article, @strqti_idtp_ID, @strqti_Remains, @strqti_ConsumptionPerDay, @strqti_Volume, @strqti_Price, @strqti_Sum, @strqti_VAT, @strqti_SumVAT, @strqti_EditIndex, @strqti_Comment, @strqti_Order)
+						INSERT INTO #StoreRequestItems (strqti_ID_orig,strqti_ID,strqti_strqt_ID,strqti_pitm_ID,strqti_meit_ID,strqti_strqtist_ID,strqti_IdentifierCode,strqti_ItemName,strqti_Article,strqti_idtp_ID,strqti_Remains,strqti_ConsumptionPerDay,strqti_Volume,strqti_Price,strqti_Sum,strqti_VAT,strqti_SumVAT,strqti_EditIndex,strqti_Comment,strqti_Order)
+						VALUES (@strqti_ID_orig,@strqti_ID, @strqt_ID, @strqti_pitm_ID, @strqti_meit_ID, @strqti_strqtist_ID, @strqti_IdentifierCode, @strqti_ItemName, @strqti_Article, @strqti_idtp_ID, @strqti_Remains, @strqti_ConsumptionPerDay, @strqti_Volume, @strqti_Price, @strqti_Sum, @strqti_VAT, @strqti_SumVAT, @strqti_EditIndex, @strqti_Comment, @strqti_Order)
 				
 					END
 					-- Если не нашли позицию заявки
@@ -377,7 +379,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 				CLOSE ci
 				DEALLOCATE ci
 
-				IF EXISTS (
+				/*IF EXISTS (
 					SELECT * FROM StoreRequestItems I1
 					LEFT JOIN StoreRequestItems I2 ON I2.strqti_ID = I1.strqti_ID
 					WHERE I1.strqti_strqt_ID = @doc_ID AND I2.strqti_strqt_ID = @strqt_ID AND I2.strqti_ID IS NULL)
@@ -386,14 +388,10 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 					VALUES ('external_ProcessEvents', 50001, 'Пришли не все позиции заявки')
 
 					SET @WasError = 1
-					-- EXEC tpsys_RaiseError 50001, 'Пришли не все позиции заявки'
-				END
+				END*/
 
-				-- Если все прошло без ошибок, переименовываем струю заявку, создаем новую
-
-				-- Начало изменений
-				-- Поставить статус "Не готова" у оринальной заявки
-
+				-- 
+				-- Было: Если все прошло без ошибок, переименовываем струю заявку, создаем новую
 
 				DECLARE
 					 @strqt_Name NVARCHAR(MAX)
@@ -404,7 +402,37 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 					GOTO NextStep
 				END
 				ELSE BEGIN
-					SELECT @strqt_Name = strqt_Name, @strqt_Date = strqt_Date FROM StoreRequests WHERE strqt_ID = @doc_ID
+					-- 1. Статус заявки "Не готова"
+					UPDATE StoreRequests 
+					SET  strqt_strqtst_ID = 10
+					WHERE strqt_ID = @doc_ID
+
+					-- 2. Обновляем заявку
+					UPDATE I
+					SET  I.strqti_Volume = S.strqti_Volume
+						,I.strqti_Price = S.strqti_Price
+						,I.strqti_Sum = S.strqti_Sum
+						,I.strqti_VAT = S.strqti_VAT
+						,I.strqti_SumVAT = S.strqti_SumVAT
+					FROM StoreRequestItems  I
+					JOIN #StoreRequestItems S ON S.strqti_ID_orig = I.strqti_ID
+
+					-- 3. Обновляем на выгрузку
+					UPDATE KonturEDI.dbo.edi_Messages SET msg_doc_ID = NULL, msg_doc_ID_original = @doc_ID WHERE msg_doc_ID = @doc_ID AND msg_doc_Type = @doc_Type
+
+					-- 4. Логи
+					DECLARE @tpsyso_ID UNIQUEIDENTIFIER, @nttp_ID_Log UNIQUEIDENTIFIER
+					SELECT TOP 1 @nttp_ID_Log = nttp_ID_Log FROM KonturEDI.dbo.edi_Settings
+					SELECT @tpsyso_ID = tpsyst_tpsyso_ID FROM sys_Tables WHERE tpsyst_Name = @doc_Type
+
+					INSERT INTO Notes (note_ID, note_nttp_ID, note_obj_ID, note_item_ID, note_Value, note_tpsyso_ID)
+					SELECT NEWID(), @nttp_ID_log, strqti_strqt_ID, strqti_ID_orig, CONVERT(NVARCHAR(4000), strqti_Comment), @tpsyso_ID
+					FROM #StoreRequestItems
+
+					-- 5. Обновляем дополнительный статус
+					EXEC external_UpdateDocStatus @doc_ID, @doc_Type, 'Пришли изменения от поставщика'
+
+					/*SELECT @strqt_Name = strqt_Name, @strqt_Date = strqt_Date FROM StoreRequests WHERE strqt_ID = @doc_ID
 					SET @strqt_Name = @strqt_Name+'_'+REPLACE(REPLACE(REPLACE(CONVERT(VARCHAR, GETDATE(), 120), ':', ''), '-', ''), ' ', '')
 		
 					UPDATE StoreRequests 
@@ -436,6 +464,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 					EXEC external_UpdateDocStatus @strqt_ID, @doc_Type, @Text
 
 					-- EXEC external_PrepareStatusReport @BoxId, 'Ok', 'Сообщение доставлено'
+					*/
 				END
 
 		/*		BEGIN
@@ -521,13 +550,17 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 
 				GOTO NextStep
 			END
+			
 			DECLARE @idoc_ID UNIQUEIDENTIFIER, @idoc_Name NVARCHAR(MAX), @idoc_Date DATETIME
-			SELECT 'external_CreateInputFromRequest', @doc_ID, @despatchAdvice_number, @despatchAdvice_date
+			
+			--SELECT 'external_CreateInputFromRequest', @doc_ID, @despatchAdvice_number, @despatchAdvice_date
 			EXEC external_CreateInputFromRequest @doc_ID, @despatchAdvice_number, @despatchAdvice_date, @idoc_ID OUTPUT, @idoc_Name OUTPUT, @idoc_Date OUTPUT
-			SELECT 'external_PrepareInputs', @idoc_ID, @doc_ID, @BoxId
+			--SELECT 'external_PrepareInputs', @idoc_ID, @doc_ID, @BoxId
 			EXEC external_PrepareInputs @idoc_ID, @doc_ID, @BoxId
 
-
+			-- Ставим заявку в статус "Готов"
+			UPDATE StoreRequests SET strqt_strqtst_ID = 11 WHERE strqt_ID = @doc_ID
+			
 			-- Статус заявки на закупку
 			SET @StatusText = 'Создана приходная накладная N'+@idoc_Name+' дата '+CONVERT(NVARCHAR(50), @idoc_Date, 104)
 			EXEC external_UpdateDocStatus @doc_ID, @doc_Type, @StatusText
